@@ -72,10 +72,6 @@ export class UsersService {
     return this.userModel.findById(id).exec();
   }
 
-  // async create(user: User): Promise<User> {
-  //   const newUser = new this.userModel(user);
-  //   return newUser.save();
-  // }
 
   async update(id: string, user: User): Promise<User> {
     return this.userModel.findByIdAndUpdate(id, user, { new: true }).exec();
@@ -103,15 +99,18 @@ async getWhishList(id: string) {
   return wish.favoriteList;
 }
 
-
-
 // DELETE USER
   async delete(id: string): Promise<User> {
     return this.userModel.findByIdAndRemove(id).exec();
   }
+
+  async deactivateUser(id: string): Promise<User> {
+    return this.userModel.findByIdAndUpdate(id, { isActive: false }, { new: true }).exec();
+  }
   
 }
-//
+
+
 
 
 

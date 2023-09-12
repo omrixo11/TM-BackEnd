@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { NextFunction } from 'express';
 import { User } from './user.schemas';
 import { Livreur } from './livreur.schemas';
+import {Product} from './product.schemas'
 
 export type OrderDocument = HydratedDocument<Order>;
 
@@ -30,10 +31,18 @@ export class Order {
     @Prop({})
     updatedAt: Date;
 
+    @Prop([
+        {
+            product: { type: mongoose.Schema.Types.ObjectId, ref: Product.name }, // Reference the 'Product' model
+            quantity: { type: Number, default: 1 },
+        }
+    ])
+    product: { product: Types.ObjectId, quantity: number }[]; // Make sure 'products' references the correct model
+
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
     user: Types.ObjectId[];
 
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Livreur' }]})
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Livreur' }] })
     livreur: Types.ObjectId;
 
     @Prop({ enum: Etat, default: Etat.EnAttente })

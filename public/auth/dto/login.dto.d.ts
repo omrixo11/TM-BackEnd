@@ -13,6 +13,7 @@ export interface LoginDTO {
     RNE: string;
     profileImage: string;
     isVerified: boolean;
+    isActive: boolean;
     verificationToken: string;
     resetPasswordToken: string;
     resetPasswordExpire: string;

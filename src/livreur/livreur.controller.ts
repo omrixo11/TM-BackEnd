@@ -5,8 +5,8 @@ import { UpdateLivreurDto } from './dto/update-livreur.dto';
 
 @Controller('livreurs')
 export class LivreurController {
-  
-  constructor(private readonly livreurService: LivreurService) {}
+
+  constructor(private readonly livreurService: LivreurService) { }
 
   @Post()
   create(@Body() createLivreurDto: CreateLivreurDto) {
@@ -23,9 +23,13 @@ export class LivreurController {
     return this.livreurService.findById(id); // Use findById method instead of findOne
   }
 
+  // @Patch(':id')
+  // async update(@Param('id') id: string, @Body() updateLivreurDto: UpdateLivreurDto) {
+  //   return this.livreurService.update(id, updateLivreurDto); // Pass id as string
+  // }
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateLivreurDto: UpdateLivreurDto) {
-    return this.livreurService.update(id, updateLivreurDto); // Pass id as string
+    return this.livreurService.update(id, updateLivreurDto);
   }
 
   @Delete(':id')
@@ -38,5 +42,5 @@ export class LivreurController {
     const total = await this.livreurService.getTotalLivreurCount();
     return { total };
   }
-  
+
 }

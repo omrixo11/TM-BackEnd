@@ -18,17 +18,14 @@ export class Product {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ required: true})
-  currency: string;
-
   @Prop({default:false})
   promo : boolean;
 
   @Prop()
   promoprice : number;
 
-  // @Prop({required: true })
-  // category: string;
+  @Prop()
+  stock : number;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: Category.name }],required:true })
   category: Types.ObjectId ;

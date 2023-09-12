@@ -19,8 +19,14 @@ export class Livreur {
   @Prop({ required: true })
   password: string;
 
+  @Prop({ required: true })
+  region: string;
+
   @Prop({ required: true, unique: true })
   tele: Number;
+
+  @Prop({ required: true, unique: true })
+  ID: Number;
 
   @Prop()
   dateOfBirth: Date;

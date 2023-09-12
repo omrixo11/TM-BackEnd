@@ -20,6 +20,9 @@ export class User extends Document {
   @Prop()
   age: number;
 
+  @Prop()
+  phoneNumber: number;
+
   @Prop({ required: true,unique :true })
   email: string;
 
@@ -51,6 +54,9 @@ export class User extends Document {
 
   @Prop({ default: false })
   isVerified: boolean;
+
+  @Prop({ default: true })
+  isActive: boolean;
 
   @Prop({ default: '' })
   verificationToken: string;

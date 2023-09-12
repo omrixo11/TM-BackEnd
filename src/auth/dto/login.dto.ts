@@ -6,16 +6,10 @@ export interface LoginDTO {
 
     lastname: string;
   
-
     age: number;
   
- 
     email: string;
   
- 
-  
-  
- 
     dateOfBirth: Date;
   
     
@@ -59,8 +53,8 @@ export interface LoginDTO {
   
    
     newsletter: boolean;
+    isActive:boolean;
   
-   
     lastConnexion: Date;
   
 

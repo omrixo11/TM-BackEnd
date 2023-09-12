@@ -63,10 +63,7 @@ async getCategorys(id: string) {
   async findAll() {
     return this.productModel.find();
   }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} product`;
-  // }
+  
   async getProductById(productId: string): Promise<Product> {
     return this.productModel.findById(productId).exec();
   }
@@ -78,4 +75,31 @@ async getCategorys(id: string) {
   async deleteProduct(productId: string): Promise<Product> {
     return this.productModel.findByIdAndDelete(productId).exec();
   }
+
+  async decrementStock(productId: string, quantity: number): Promise<Product> {
+    try {
+      // Find the product by ID
+      const product = await this.productModel.findById(productId);
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID ${productId} not found`);
+      }
+
+      // Check if there is enough stock to decrement
+      if (product.stock < quantity) {
+        throw new BadRequestException(`Not enough stock for product with ID ${productId}`);
+      }
+
+      // Decrement the stock
+      product.stock -= quantity;
+
+      // Save the updated product
+      const updatedProduct = await product.save();
+
+      return updatedProduct;
+    } catch (err) {
+      throw err;
+    }
+  }
+  
 }

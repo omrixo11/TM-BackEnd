@@ -3,7 +3,6 @@ export class CreateProductDto {
     name: string
   description: string
   price: number
-  currency: string
   promo : boolean
   promoprice : number
   category: string

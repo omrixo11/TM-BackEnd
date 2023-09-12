@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const passport_1 = require("@nestjs/passport");

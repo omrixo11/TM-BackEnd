@@ -63,4 +63,12 @@ if( !mongoose.Types.ObjectId.isValid(id) ) return false;
   async delete(@Param('id') id: string): Promise<User> {
     return this.usersService.delete(id);
   }
+
+  @Patch('/:id/deactivate')
+deactivateUser(@Param('id') id: string) {
+  if (id.match(/^[0-9a-fA-F]{24}$/)) {
+    return this.usersService.deactivateUser(id);
+  }
+}
+
 }

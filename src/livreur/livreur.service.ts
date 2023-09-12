@@ -29,7 +29,10 @@ export class LivreurService {
     return this.livreurModel.findById(id).exec();
   }
 
+  
+
   async update(id: string, updateLivreurDto: UpdateLivreurDto): Promise<Livreur> {
+    console.log(`Updating Livreur with ID: ${id}`);
     const existingLivreur = await this.livreurModel.findById(id);
     if (!existingLivreur) {
       throw new HttpException('Livreur not found', HttpStatus.NOT_FOUND);
