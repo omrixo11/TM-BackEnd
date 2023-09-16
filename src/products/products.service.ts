@@ -11,7 +11,7 @@ import { NotFoundError } from 'rxjs';
 @Injectable()
 export class ProductsService {
   constructor(@InjectModel(Product.name) private productModel: Model<Product>
-   , private cloudinary: CloudinaryService
+   ,private cloudinary: CloudinaryService
   ) {}
 
   async createProduct(productData: Product): Promise<Product> {
@@ -26,7 +26,6 @@ export class ProductsService {
       throw new NotFoundException();
     }
   }
-
   async getProducts(): Promise<Product[]> {
     return this.productModel.find().exec();
   }
@@ -37,8 +36,8 @@ export class ProductsService {
       throw new BadRequestException('Invalid file type.');
     });
   }
-//add category and remove and getcategory
 
+//add category and remove and getcategory
 addCategory(id: string, categoryId: string) {
   return this.productModel.findByIdAndUpdate(
     id,

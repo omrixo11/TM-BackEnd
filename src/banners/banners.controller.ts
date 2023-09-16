@@ -1,15 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannersService } from './banners.service';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
 import { Banner } from 'src/schemas/banner.schemas';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 
+
 @Controller('banners')
 export class BannersController {
   constructor(private readonly bannersService: BannersService) { }
 
-  @Post()
+  //Cloudinary 
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadImageToCloudinary(@UploadedFile() file: Express.Multer.File) {
+    return this.bannersService.uploadImageToCloudinary(file);
+  }
+
+  @Post('createBanner')
   async createBanner(@Body() bannerData: Banner): Promise<Banner> {
 
     return this.bannersService.createBanner(bannerData);
@@ -19,12 +27,7 @@ export class BannersController {
   async getBanners(): Promise<Banner[]> {
     return this.bannersService.getBanners();
   }
-  //Cloudinary 
-  @Post('uploadBanner')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadImageToCloudinary(@UploadedFile() file: Express.Multer.File) {
-    return this.bannersService.uploadImageToCloudinary(file);
-  }
+
 
   @Get()
   findAll() {
@@ -38,8 +41,10 @@ export class BannersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBannerDto: UpdateBannerDto) {
-    return this.bannersService.update(+id, updateBannerDto);
+    return this.bannersService.update(id, updateBannerDto);
   }
+
+  
 
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -33,10 +33,8 @@ export class ProductsController {
   uploadImageToCloudinary(@UploadedFile() file: Express.Multer.File) {
     return this.productsService.uploadImageToCloudinary(file);
   }
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.productsService.findOne(+id);
-  // }
+
+  
   @Get(':id')
   async getProductById(@Param('id') productId: string): Promise<Product> {
     return this.productsService.getProductById(productId);

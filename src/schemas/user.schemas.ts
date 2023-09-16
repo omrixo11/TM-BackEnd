@@ -40,6 +40,7 @@ export class User extends Document {
 
   @Prop({ default: '' })
   matriculeFiscale: string;
+  
   @Prop({ default: '' })
   assujettieTVA: string;
 

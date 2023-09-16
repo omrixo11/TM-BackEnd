@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDTO } from '../auth/dto/login.dto'
@@ -9,11 +9,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/schemas/user.schemas';
 import { Model } from 'mongoose';
 import { Product } from 'src/schemas/product.schemas';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+
 
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,
+  private cloudinary: CloudinaryService
+  ) {}
 
   async create(RegisterDTO: RegisterDTO): Promise<User> {
     const { email } = RegisterDTO;
@@ -24,6 +28,13 @@ export class UsersService {
     const createdUser = new this.userModel(RegisterDTO);
     await createdUser.save();
     return this.sanitizeUser(createdUser);
+  }
+
+  //Upload image cloudinary 
+  async uploadImageToCloudinary(file: Express.Multer.File) {
+    return await this.cloudinary.uploadImage(file).catch(() => {
+      throw new BadRequestException('Invalid file type.');
+    });
   }
 
   // return user object without password
@@ -84,6 +95,7 @@ export class UsersService {
         { $addToSet: { favoriteList: productId } },
         { new: true }).exec();
   }
+  
 //DELETE FROM WHISHLIST
 removeFromWhishList(id: string, productId: string) {
   return this.userModel.findByIdAndUpdate(

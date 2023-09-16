@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Order } from './entities/order.entity';
+import { Order } from '../schemas/order.schemas';
 import { OrderDocument } from 'src/schemas/order.schemas';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { startOfDay, endOfDay, format } from 'date-fns';
@@ -20,16 +20,15 @@ import { InternalServerErrorException } from '@nestjs/common';
 
 
 const nodemailer = require('nodemailer');
-const transporter = nodemailer.createTransport ({
+const transporter = nodemailer.createTransport({
   host:
-  "smtp.office365.com",
+    "smtp.office365.com",
   port: 587,
   secure:
-  false,
-  // upgrade later with STARTTLS
+    false,
   auth: {
-     user: 'tunis.market@outlook.com',
-     pass: 'daliTunisMarket1',
+    user: 'tunis.market@outlook.com',
+    pass: 'daliTunisMarket1',
   },
 });
 
@@ -48,23 +47,39 @@ export class OrderService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private livreurService: LivreurService,
-    
-   
-) {}
+    private readonly userService: UsersService,
 
-  async create(orderData: Order): Promise<Order> {
+  ) { }
+
+  // async create(orderData: Order): Promise<Order> {
+  //   try {
+  //     const newOrder = new this.orderModel(orderData);
+  //     const result = await newOrder.save();
+  //     return result;
+  //   } catch (err) {
+  //     throw new NotFoundException();
+  //   }
+  // }
+
+  async create(orderData: CreateOrderDto): Promise<Order> {
     try {
       const newOrder = new this.orderModel(orderData);
       const result = await newOrder.save();
+      console.log(result, 'res');
+
+      await result.populate('user')
+      // Send an email notification to the user
+      await this.sendOrderConfirmationEmail(result);
       return result;
+
     } catch (err) {
       throw new NotFoundException();
     }
   }
-  
+
   async findAll(): Promise<Order[]> {
-    
-      return this.orderModel.find().populate('user')
+
+    return this.orderModel.find().populate('user')
       .populate('product.product')
       .populate('livreur').exec();
   }
@@ -79,9 +94,9 @@ export class OrderService {
       //   path: 'products.product', // Populate the 'product' field within 'products'
       // })
       .exec();
-  
+
     console.log('Populated Order:', order);
-  
+
     return order;
   }
 
@@ -111,55 +126,51 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${idOrder} not found`);
     }
 
-    // Use the LivreurService to retrieve the livreur's email
     const livreur = await this.livreurService.findById(idLivreur);
     if (!livreur) {
       throw new NotFoundException(`Livreur with ID ${idLivreur} not found`);
     }
     const livreurEmail = livreur.email;
     console.log("email:", livreurEmail);
-    
 
-    // Convert idLivreur string to ObjectId
+
     const livreurObjectId = new Types.ObjectId(idLivreur);
 
-    order.livreur = livreurObjectId; // Set the livreur as ObjectId
+    order.livreur = livreurObjectId;
 
     const updatedOrder = await order.save();
 
-    // Separate the populate calls and use exec() at the end of each
-  
-  await updatedOrder.populate('user');
-  await updatedOrder.populate('livreur');
 
-  // Format order data into a readable text
-  const orderText = `Order ID: ${updatedOrder._id}\n`;
-  const productsText = updatedOrder.product.map((item) => `Produit: ${item.product}, Qte: ${item.quantity}`).join('\n');
-  const orderDetailsText = `Detaille commande:\n${productsText}\nPrix Totale: ${updatedOrder.prix}`;
-  const emailText = `Nouveau commande:\n${orderText}\n${orderDetailsText}`;
+    await updatedOrder.populate('user');
+    await updatedOrder.populate('livreur');
 
-  const mailOptions = {
-    from: 'tunis.market@outlook.com', // Sender's email address
-    to: livreurEmail, // Livreur's email address
-    subject: 'Nouveau commande',
-    text: emailText,
-  };
+    const orderText = `Order ID: ${updatedOrder._id}\n`;
+    const productsText = updatedOrder.product.map((item) => `Produit: ${item.product}, Qte: ${item.quantity}`).join('\n');
+    const orderDetailsText = `Detaille commande:\n${productsText}\nPrix Totale: ${updatedOrder.prix}.000 DT`;
+    const emailText = `Nouveau commande:\n${orderText}\n${orderDetailsText}`;
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
+    const mailOptions = {
+      from: 'tunis.market@outlook.com', // Sender email 
+      to: livreurEmail, // Livreur email
+      subject: 'Nouveau commande',
+      text: emailText,
+    };
 
-  return updatedOrder;
-}
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
+
+    return updatedOrder;
+  }
 
 
   async calculateTotalOrdersPrice(): Promise<number> {
     const { startOfDay, endOfDay, formattedDate } = getDateToday();
-  
+
     try {
       const orders = await this.orderModel
         .find({
@@ -169,23 +180,45 @@ export class OrderService {
           },
         })
         .exec();
-  
+
       let totalPrice = 0;
-  
+
       for (const order of orders) {
         totalPrice += order.prix;
       }
-  
+
       console.log('Total Price:', totalPrice);
-  
+
       return totalPrice;
     } catch (err) {
       console.error('Error calculating total orders price:', err);
       // throw new InternalServerErrorException('Error calculating total orders price');
     }
   }
-  
 
+  async sendOrderConfirmationEmail(order: any): Promise<void> {
+    const userEmail = order?.user[0].email; // Replace with the actual path to user's email
+    const orderText = `Order ID: ${order?.id}\n`;
+    const productsText = order.product?.map((item) => `Produit: ${item.product}, Qte: ${item.quantity}`).join('\n');
+    const orderDetailsText = `Detaille commande:\n${productsText}\nPrix Totale: ${order?.prix}.000 DT`;
+    const emailText = `Nouveau commande:\n${orderText}\n${orderDetailsText}`;
+    console.log(userEmail, 'userEmail',);
+
+    const mailOptions = {
+      from: 'tunis.market@outlook.com',
+      to: userEmail,
+      subject: 'Confirmation de commande',
+      text: emailText,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Confirmation sent to:', userEmail);
+    } catch (error) {
+      console.error('Error sending order confirmation email:', error);
+      throw new InternalServerErrorException('Failed to send order confirmation email');
+    }
+  }
   async calculateNotDeliveredOrdersCount(): Promise<number> {
     try {
       const notDeliveredOrdersCount = await this.orderModel
@@ -235,7 +268,7 @@ export class OrderService {
       },
       {
         $lookup: {
-          from: "products", // Assuming your products collection name is "products"
+          from: "products",
           localField: "_id",
           foreignField: "_id",
           as: "productInfo",
@@ -254,11 +287,11 @@ export class OrderService {
         $sort: { totalQuantity: -1 },
       },
     ];
-  
+
     const mostOrderedProducts = await this.orderModel.aggregate<{ product: string; totalQuantity: number }>(pipeline).exec();
 
     console.log("Most Ordered Products:", mostOrderedProducts);
-  
+
     return mostOrderedProducts;
 
   }
@@ -270,7 +303,7 @@ export class OrderService {
       },
       {
         $lookup: {
-          from: "products", // Assuming your products collection name is "products"
+          from: "products",
           localField: "product.product",
           foreignField: "_id",
           as: "productInfo",
@@ -281,8 +314,8 @@ export class OrderService {
       },
       {
         $lookup: {
-          from: "categories", // Assuming your categories collection name is "categories"
-          localField: "productInfo.category", // Assuming each product has a "category" field containing the category ID
+          from: "categories",
+          localField: "productInfo.category",
           foreignField: "_id",
           as: "categoryInfo",
         },
@@ -307,43 +340,41 @@ export class OrderService {
         $sort: { totalQuantity: -1 },
       },
     ];
-  
+
     const mostOrderedCategories = await this.orderModel.aggregate<{ category: string; totalQuantity: number }>(pipeline).exec();
-  
+
     console.log("Most Ordered Categories:", mostOrderedCategories);
-  
+
     return mostOrderedCategories;
   }
-  
+
   async getOrdersByWeekdays(): Promise<{ dayOfWeek: number; orderCount: number }[]> {
     const pipeline: any[] = [
       {
         $group: {
-          _id: { $dayOfWeek: '$createdAt' }, // Group by the day of the week
-          orderCount: { $sum: 1 }, // Count the orders for each day
+          _id: { $dayOfWeek: '$createdAt' },
+          orderCount: { $sum: 1 },
         },
       },
       {
         $project: {
-          dayOfWeek: '$_id', // Rename the _id field to dayOfWeek
+          dayOfWeek: '$_id',
           orderCount: 1,
-          _id: 0, // Exclude the _id field from the result
+          _id: 0,
         },
       },
       {
-        $sort: { dayOfWeek: 1 }, // Sort the results by day of the week
+        $sort: { dayOfWeek: 1 },
       },
     ];
 
     const ordersByWeekdays = await this.orderModel.aggregate<{ dayOfWeek: number; orderCount: number }>(pipeline).exec();
 
-    // MongoDB returns dayOfWeek values as numbers (1 for Sunday, 2 for Monday, etc.)
-    // You can map these numbers to day names if needed
     const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
     const result = ordersByWeekdays.map((item) => ({
       dayOfWeek: item.dayOfWeek,
-      dayName: dayNames[item.dayOfWeek - 1], // Subtract 1 because JavaScript's getDay() returns 0 for Sunday
+      dayName: dayNames[item.dayOfWeek - 1],
       orderCount: item.orderCount,
     }));
 
@@ -380,4 +411,4 @@ export class OrderService {
     }
   }
 
-  }
+}

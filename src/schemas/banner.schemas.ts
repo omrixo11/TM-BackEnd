@@ -10,34 +10,13 @@ export class Banner {
 
 
   @Prop({ required: true,unique :true })
+  bannerUrl: string;
+
+  @Prop({ required: true,unique :true })
   name: string;
 
   @Prop()
   description: string;
-
-
-  @Prop({default:false})
-  promo : boolean;
-
-  @Prop()
-  promoprice : number;
-
-
-  @Prop({ default: '' })
-  brand: string;
-
-  @Prop({ })
-  tags: [string];
-
-  @Prop({ required: true })
-  imageUrls: [string];
-
-  @Prop({ })
-  createdAt: Date;
-
-  @Prop({})
-  updatedAt: Date;
-
 
 }
 

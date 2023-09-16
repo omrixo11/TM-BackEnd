@@ -1,14 +1,23 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'src/schemas/user.schemas';
 import { Product } from 'src/schemas/product.schemas';
 import mongoose from 'mongoose';
+import { FileInterceptor } from '@nestjs/platform-express/multer';
+
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  //Cloudinary 
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadImageToCloudinary(@UploadedFile() file: Express.Multer.File) {
+    return this.usersService.uploadImageToCloudinary(file);
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
