@@ -51,16 +51,6 @@ export class OrderService {
 
   ) { }
 
-  // async create(orderData: Order): Promise<Order> {
-  //   try {
-  //     const newOrder = new this.orderModel(orderData);
-  //     const result = await newOrder.save();
-  //     return result;
-  //   } catch (err) {
-  //     throw new NotFoundException();
-  //   }
-  // }
-
   async create(orderData: CreateOrderDto): Promise<Order> {
     try {
       const newOrder = new this.orderModel(orderData);
@@ -68,7 +58,6 @@ export class OrderService {
       console.log(result, 'res');
 
       await result.populate('user')
-      // Send an email notification to the user
       await this.sendOrderConfirmationEmail(result);
       return result;
 
@@ -410,5 +399,4 @@ export class OrderService {
       throw error;
     }
   }
-
 }

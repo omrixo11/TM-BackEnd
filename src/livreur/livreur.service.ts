@@ -39,6 +39,8 @@ export class LivreurService {
     }
     Object.assign(existingLivreur, updateLivreurDto);
     await existingLivreur.save();
+    console.log(existingLivreur,"livreurexisting",updateLivreurDto);
+
     return this.sanitizeLivreur(existingLivreur);
   }
 

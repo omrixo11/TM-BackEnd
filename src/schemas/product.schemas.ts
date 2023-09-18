@@ -12,6 +12,9 @@ export class Product {
   @Prop({ required: true,unique :true })
   name: string;
 
+  @Prop({ required: true })
+  QtePerUnit: string;
+
   @Prop()
   description: string;
 

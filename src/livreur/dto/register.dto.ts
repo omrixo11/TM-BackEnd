@@ -1,14 +1,12 @@
 export interface RegisterLivreurDTO {
    
     password: string;
+    
     firstname: string
 
-
     lastname: string;
-  
 
     age: number;
-  
  
     email: string;
   
@@ -22,8 +20,6 @@ export interface RegisterLivreurDTO {
 
     reviews: { type: string[], default: [] };
   
-   
-   
     lastConnexion: Date;
   
 

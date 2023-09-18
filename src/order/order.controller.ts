@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Req, Patch, Param, Delete, InternalServerE
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { OrderSchema } from 'src/schemas/order.schemas';
 
 import axios from 'axios'
 
@@ -115,5 +116,7 @@ export class OrderController {
     assignLivreur(@Param('id') orderId: string, @Param('livreurId') livreurId: string) {
         return this.orderService.assignLivreur(livreurId, orderId);
     }
+
+    
 
 }

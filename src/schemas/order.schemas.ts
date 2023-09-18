@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { NextFunction } from 'express';
 import { User } from './user.schemas';
 import { Livreur } from './livreur.schemas';
-import {Product} from './product.schemas'
+import { Product } from './product.schemas'
 
 export type OrderDocument = HydratedDocument<Order>;
 
@@ -14,6 +14,12 @@ export enum Etat {
     EnCours = 'En cours',
     Annuler = 'Annuler',
     Livrer = 'Livrer'
+}
+
+export enum EtatPayment {
+    Payer = 'Payer',
+    NonPayer = 'Non Payer',
+
 }
 
 export enum ModePayment {
@@ -47,6 +53,9 @@ export class Order {
 
     @Prop({ enum: Etat, default: Etat.EnAttente })
     etat: Etat;
+
+    @Prop({ enum: EtatPayment, default: EtatPayment.NonPayer })
+    payment: EtatPayment;    
 
     @Prop({})
     prix: number;

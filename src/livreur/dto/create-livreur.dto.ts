@@ -8,6 +8,7 @@ export class CreateLivreurDto {
 
     age: number
   
+    tele: number
  
     email: string
   

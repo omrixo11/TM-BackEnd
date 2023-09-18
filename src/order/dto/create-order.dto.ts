@@ -1,5 +1,5 @@
 
-import { Etat, ModePayment } from "../../schemas/order.schemas"
+import { Etat, ModePayment,EtatPayment } from "../../schemas/order.schemas"
 
 export class CreateOrderDto {
 
@@ -8,6 +8,8 @@ export class CreateOrderDto {
   livreur: string; 
 
   etat: Etat;
+
+  payment: EtatPayment;
 
   typePayment: ModePayment;
 

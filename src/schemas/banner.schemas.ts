@@ -17,7 +17,7 @@ export class Banner {
 
   @Prop()
   description: string;
-
+  
 }
 
 export const BannerSchema = SchemaFactory.createForClass(Banner);

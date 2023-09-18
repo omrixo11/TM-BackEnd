@@ -39,12 +39,11 @@ export class UsersController {
     return this.usersService.findByEmail(email);
   }
 
-  @Put(':id')
+  @Patch(':id')
   async update(@Param('id') id: string, @Body() user: User): Promise<User> {
     return this.usersService.update(id, user);
   }
-// add wish list 
-   //wishlist part to update, get and delete 
+ 
  @Patch('/:id/add-wishlist/:productId')
  updateWhishList(@Param('id') id: string, @Param('productId') productId: string) {
    if (id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -74,7 +73,7 @@ if( !mongoose.Types.ObjectId.isValid(id) ) return false;
   }
 
   @Patch('/:id/deactivate')
-deactivateUser(@Param('id') id: string) {
+  deactivateUser(@Param('id') id: string) {
   if (id.match(/^[0-9a-fA-F]{24}$/)) {
     return this.usersService.deactivateUser(id);
   }
